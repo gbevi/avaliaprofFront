@@ -14,11 +14,6 @@ export default function Login() {
   });
 
   const handleSubmit = async (values: { email: string; password: string }) => {
-    console.log(values);
-    console.log("Dados enviados ao servidor:", {
-      email: values.email,
-      password: values.password,
-    });
     try {
       const response = await axios.post("http://localhost:3001/login", {
         email: values.email,
