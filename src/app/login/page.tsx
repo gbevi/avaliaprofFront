@@ -13,11 +13,13 @@ export default function Login() {
     password: Yup.string().required("Campo obrigatório"),
   });
 
-  const handleSubmit = async (values: { email: string; password: string }) => {
+  const handleSubmit = async (values: { email: string; password: string; departamento: string; curso: string }) => {
     try {
       const response = await axios.post("http://localhost:3001/login", {
         email: values.email,
         password: values.password, 
+        departamento: values.departamento,
+        curso: values.curso,
       });
 
       const token = response.data.access_token;
@@ -47,7 +49,7 @@ export default function Login() {
           </p>
 
           <Formik
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ email: "", password: "", departamento: "", curso: "" }}
             validationSchema={loginSchema}
             onSubmit={handleSubmit}
           >
@@ -77,6 +79,34 @@ export default function Login() {
                 />
                 <ErrorMessage
                   name="password"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-lg font-medium font-Inter">Departamento</label>
+                <Field
+                  name="departamento"
+                  type="departamento"
+                  placeholder="Digite seu departamento"
+                  className="w-full border-2 border-gray-100 rounded-xl p-4 mt-1 bg-transparent"
+                />
+                <ErrorMessage
+                  name="departamento"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-lg font-medium font-Inter">Curso</label>
+                <Field
+                  name="curso"
+                  type="curso"
+                  placeholder="Digite seu curso"
+                  className="w-full border-2 border-gray-100 rounded-xl p-4 mt-1 bg-transparent"
+                />
+                <ErrorMessage
+                  name="curso"
                   component="div"
                   className="text-red-500 text-sm mt-1"
                 />
