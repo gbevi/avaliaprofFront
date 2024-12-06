@@ -1,39 +1,45 @@
- "use client";
-
+"use client";
 import Image from "next/image";
-import * as Yup from "yup";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { useState } from "react";
 
 export default function Register() {
   const router = useRouter();
 
-  const registerSchema = Yup.object().shape({
-    name: Yup.string().required("Campo obrigatório"),
-    department: Yup.string().required("Campo obrigatório"),
-    course: Yup.string().required("Campo obrigatório"),
-    email: Yup.string().email("Email inválido").required("Campo obrigatório"),
-    password: Yup.string().required("Campo obrigatório"),
-  });
+  const goToLogin = () => {
+    router.push("/login");
+  };
+  const [name, setName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [course, setCourse] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (values: {
-    name: string;
-    department: string;
-    course: string;
-    email: string;
-    password: string;
-  }) => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    const endpoint = "http://localhost:3001/users"; 
+
     try {
-      const response = await axios.post("http://localhost:3001/users", {
-        name: values.name,
-        department: values.department,
-        course: values.course,
-        email: values.email,
-        password: values.password,
+      const payload = {
+        name,
+        department,
+        course,
+        email,
+        password,
+      };
+
+      console.log("Payload enviado:", payload);
+
+      await axios.post(endpoint, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
-      console.log(response.data);
       alert("Conta criada com sucesso!");
       router.push("/login");
     } catch (error) {
@@ -47,6 +53,8 @@ export default function Register() {
         console.error("Erro desconhecido:", error);
       }
       alert("Falha ao criar conta. Tente novamente.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -60,124 +68,107 @@ export default function Register() {
             Preencha os campos abaixo:
           </p>
 
-          <Formik
-            initialValues={{
-              name: "",
-              department: "",
-              course: "",
-              email: "",
-              password: "",
-            }}
-            validationSchema={registerSchema}
-            onSubmit={handleSubmit}
-          >
-            <Form className="mt-6 space-y-4">
-              {/* Campo Nome */}
-              <div>
-                <label className="text-sm font-medium">Nome</label>
-                <Field
-                  name="name"
-                  type="text"
-                  placeholder="Digite seu nome"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="name"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
-              {/* Campo Email */}
-              <div>
-                <label className="text-sm font-medium">Email</label>
-                <Field
-                  name="email"
-                  type="email"
-                  placeholder="Digite seu email"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="email"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Campo Nome */}
+            <div>
+              <label className="text-sm font-medium">Nome</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Digite seu nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                required
+              />
+            </div>
+            {/* Campo Email */}
+            <div>
+              <label className="text-sm font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Digite seu email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                required
+              />
+            </div>
 
-              {/* Campo Curso */}
-              <div>
-                <label className="text-sm font-medium">Curso</label>
-                <Field
-                  name="course"
-                  type="text"
-                  placeholder="Digite seu curso"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="course"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
+            {/* Campo Curso */}
+            <div>
+              <label className="text-sm font-medium">Curso</label>
+              <input
+                type="text"
+                name="course"
+                placeholder="Digite seu curso"
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                required
+              />
+            </div>
 
-              {/* Campo Departamento */}
-              <div>
-                <label className="text-sm font-medium">Departamento</label>
-                <Field
-                  name="department"
-                  type="text"
-                  placeholder="Digite seu departamento"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="department"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
+            {/* Campo Departamento */}
+            <div>
+              <label className="text-sm font-medium">Departamento</label>
+              <input
+                type="text"
+                name="department"
+                placeholder="Digite seu departamento"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                required
+              />
+            </div>
 
-              {/* Campo Senha */}
-              <div>
-                <label className="text-sm font-medium">Senha</label>
-                <Field
-                  name="password"
-                  type="password"
-                  placeholder="Digite sua senha"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="password"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
+            {/* Campo Senha */}
+            <div>
+              <label className="text-sm font-medium">Senha</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Digite sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                required
+              />
+            </div>
 
-              {/* Botão de Registrar */}
-              <div className="mt-6">
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-green-500 text-white rounded-lg font-bold text-sm hover:bg-green-600 transition"
-                >
-                  Registrar
-                </button>
-              </div>
+            {/* Botão de Registrar */}
+            <div className="mt-6">
+              <button
+                type="submit"
+                className="w-full py-3 bg-green-500 text-white rounded-lg font-bold text-sm hover:bg-green-600 transition"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Registrando..." : "Registrar"}
+              </button>
+            </div>
 
-              {/* Link para login */}
-              <div className="mt-4 flex justify-center items-center">
-                <p className="text-sm">Já possui conta?</p>
-                <button
-                  onClick={() => router.push("/login")}
-                  className="text-green-500 text-sm font-medium ml-2 hover:underline"
-                >
-                  Fazer Login
-                </button>
-              </div>
-            </Form>
-          </Formik>
+            {/* Link para login */}
+            <div className="mt-4 flex justify-center items-center">
+              <p className="text-sm">Já possui conta?</p>
+              <button
+                onClick={goToLogin}
+                className="text-green-500 text-sm font-medium ml-2 hover:underline"
+              >
+                Fazer Login
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
       {/* Seção Direita - Gradiente e Imagem */}
       <div className="hidden lg:flex h-full w-full lg:w-1/2 flex-col items-center justify-center bg-gradient-to-br from-blue-400 to-green-400">
+      <button
+          className="active:scale-90 hover:scale-100"
+          onClick={() => router.push('/')}
+        >
         <Image
           src="/images/unblogo.png"
           alt="Logo da Universidade"
@@ -185,6 +176,7 @@ export default function Register() {
           height={150}
           className="mb-4"
         />
+        </button>
         <p className="text-black text-sm font-bold text-center">
           Avaliação de Professores
         </p>

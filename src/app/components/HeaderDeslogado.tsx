@@ -7,7 +7,7 @@ export default function HeaderLogado() {
     const router = useRouter();
 
     const goToLogin = () => {
-        router.push("/perfil"); 
+        router.push("/login"); 
     };
     
     const goToFeed = () => {

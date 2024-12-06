@@ -89,22 +89,6 @@ export default function Login() {
                 />
               </div>
 
-              {/* Opções Adicionais */}
-              <div className="mt-8 flex justify-between items-center">
-                <div>
-                  <input type="checkbox" id="remember" />
-                  <label
-                    className="ml-2 font-medium text-base"
-                    htmlFor="remember"
-                  >
-                    Lembre de mim
-                  </label>
-                </div>
-                <button className="font-medium text-base text-green-500">
-                  Esqueci a Senha
-                </button>
-              </div>
-
               {/* Botão de Login */}
               <div className="mt-8 flex flex-col gap-y-4">
                 <button
