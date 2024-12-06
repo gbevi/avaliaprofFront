@@ -25,7 +25,7 @@ export default function Login() {
       localStorage.setItem("token", token);
       console.log(response.data);
       alert("Login realizado com sucesso!");
-      router.push("/Feed");
+      router.push("/feed");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Erro na solicitação Axios:", error.response?.data || error.message);

@@ -43,11 +43,6 @@ export default function Home() {
       <section className="m-8">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold font-Questrial ml-20">Todos os Professores</h2>
-          <div className="space-x-8 mr-20">
-            <button className="bg-blue-500 text-white font-Questrial px-4 py-2 rounded-md shadow hover:bg-blue-600 ">
-              Ordenar
-            </button>
-          </div>
         </div>
         <div className="flex justify-center space-x-10 mt-6 mx-6">
           {Array(4).fill(0).map((_, index) => (
