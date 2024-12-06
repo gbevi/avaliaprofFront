@@ -23,8 +23,7 @@ export default function HeaderLogado() {
     router.push("/feed")
   }
   const goToNotifications = () => {
-    alert("Notificações em breve!"); // Placeholder para notificações
-    // router.push("/notificacoes"); // Caso tenha uma página de notificações
+    alert("Notificações em breve!"); 
   };
 
   return (
