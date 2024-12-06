@@ -1,3 +1,4 @@
+"use client"
 import Image from 'next/image';
 import HeaderLogado from '../components/HeaderLogado';  
 import Perfil from '../../../public/images/perfil.png';
