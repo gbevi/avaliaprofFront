@@ -10,27 +10,27 @@ export default function Register() {
   const router = useRouter();
 
   const registerSchema = Yup.object().shape({
-    nome: Yup.string().required("Campo obrigatório"),
-    departamento: Yup.string().required("Campo obrigatório"),
-    curso: Yup.string().required("Campo obrigatório"),
+    name: Yup.string().required("Campo obrigatório"),
+    department: Yup.string().required("Campo obrigatório"),
+    course: Yup.string().required("Campo obrigatório"),
     email: Yup.string().email("Email inválido").required("Campo obrigatório"),
-    senha: Yup.string().required("Campo obrigatório"),
+    password: Yup.string().required("Campo obrigatório"),
   });
 
   const handleSubmit = async (values: {
-    nome: string;
-    departamento: string;
-    curso: string;
+    name: string;
+    department: string;
+    course: string;
     email: string;
-    senha: string;
+    password: string;
   }) => {
     try {
-      const response = await axios.post("http://localhost:3001/register", {
-        nome: values.nome,
-        departamento: values.departamento,
-        curso: values.curso,
+      const response = await axios.post("http://localhost:3001/users", {
+        name: values.name,
+        department: values.department,
+        course: values.course,
         email: values.email,
-        senha: values.senha,
+        password: values.password,
       });
 
       console.log(response.data);
@@ -62,11 +62,11 @@ export default function Register() {
 
           <Formik
             initialValues={{
-              nome: "",
-              departamento: "",
-              curso: "",
+              name: "",
+              department: "",
+              course: "",
               email: "",
-              senha: "",
+              password: "",
             }}
             validationSchema={registerSchema}
             onSubmit={handleSubmit}
@@ -76,50 +76,17 @@ export default function Register() {
               <div>
                 <label className="text-sm font-medium">Nome</label>
                 <Field
-                  name="nome"
+                  name="name"
                   type="text"
                   placeholder="Digite seu nome"
                   className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
                 />
                 <ErrorMessage
-                  name="nome"
+                  name="name"
                   component="div"
                   className="text-red-500 text-xs mt-1"
                 />
               </div>
-
-              {/* Campo Departamento */}
-              <div>
-                <label className="text-sm font-medium">Departamento</label>
-                <Field
-                  name="departamento"
-                  type="text"
-                  placeholder="Digite seu departamento"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="departamento"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
-
-              {/* Campo Curso */}
-              <div>
-                <label className="text-sm font-medium">Curso</label>
-                <Field
-                  name="curso"
-                  type="text"
-                  placeholder="Digite seu curso"
-                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
-                />
-                <ErrorMessage
-                  name="curso"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
-
               {/* Campo Email */}
               <div>
                 <label className="text-sm font-medium">Email</label>
@@ -136,17 +103,49 @@ export default function Register() {
                 />
               </div>
 
+              {/* Campo Curso */}
+              <div>
+                <label className="text-sm font-medium">Curso</label>
+                <Field
+                  name="course"
+                  type="text"
+                  placeholder="Digite seu curso"
+                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                />
+                <ErrorMessage
+                  name="course"
+                  component="div"
+                  className="text-red-500 text-xs mt-1"
+                />
+              </div>
+
+              {/* Campo Departamento */}
+              <div>
+                <label className="text-sm font-medium">Departamento</label>
+                <Field
+                  name="department"
+                  type="text"
+                  placeholder="Digite seu departamento"
+                  className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
+                />
+                <ErrorMessage
+                  name="department"
+                  component="div"
+                  className="text-red-500 text-xs mt-1"
+                />
+              </div>
+
               {/* Campo Senha */}
               <div>
                 <label className="text-sm font-medium">Senha</label>
                 <Field
-                  name="senha"
+                  name="password"
                   type="password"
                   placeholder="Digite sua senha"
                   className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
                 />
                 <ErrorMessage
-                  name="senha"
+                  name="password"
                   component="div"
                   className="text-red-500 text-xs mt-1"
                 />
