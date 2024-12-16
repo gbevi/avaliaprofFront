@@ -17,14 +17,13 @@ export default function Login() {
   const handleSubmit = async (values: { email: string; password: string }) => {
     try {
       const response = await axios.post("http://localhost:3001/login", {
-email: values.email,
-        password: values.password,        
+        email: values.email,
+        password: values.password,
       });
 
-      const token = response.data.access_token;
-
-      localStorage.setItem("token", token);
-      console.log(response.data);
+      localStorage.setItem("token", response.data.access_token);
+      const token = localStorage.getItem("token");
+      console.log("Token:", token);
       alert("Login realizado com sucesso!");
       router.push("/feed");
     } catch (error) {
@@ -111,6 +110,16 @@ email: values.email,
               </div>
             </Form>
           </Formik>
+
+          {/* Botão de Voltar */}
+          <div className="mt-8 flex justify-center items-center">
+            <button
+              onClick={() => router.push("/")}
+              className="text-gray-500 text-base font-medium hover:underline"
+            >
+              Voltar
+            </button>
+          </div>
         </div>
       </div>
 
