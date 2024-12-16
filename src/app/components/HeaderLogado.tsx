@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation"; // Para navegação
 import UnB from "../../../public/images/UnB.png";
 import notificacao from "../../../public/images/notificacao.svg";
-import dog from "../../../public/images/dog.png";
 import exit from "../../../public/images/exit.svg";
 
 export default function HeaderLogado() {
@@ -51,16 +50,10 @@ export default function HeaderLogado() {
 
         {/* Botão para o perfil */}
         <button
-          className="active:scale-90 hover:scale-100"
+          className="active:scale-90 hover:scale-100 bg-blue-500 text-white px-4 py-2 rounded-md"
           onClick={goToProfile}
         >
-          <Image
-            src={dog}
-            alt="Avatar"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
+          Perfil
         </button>
 
         {/* Botão de logout */}

@@ -1,11 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import HeaderLogado from "../components/HeaderLogado";
-import EditProfileModal from "../components/EditProfileModal";
-import DeleteProfileModal from "../components/DeleteProfileModal";
+import { useParams } from "next/navigation";
+import HeaderDeslogado from "@/app/components/HeaderDeslogado";
 
 interface Evaluation {
   id: string;
@@ -63,45 +60,23 @@ interface Profile {
   evaluations: Evaluation[];
 }
 
-export default function Perfil() {
+export default function PerfilDeslogado() {
+  const { id } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
       try {
-        const decoded: { sub?: string } = jwtDecode(token);
-        const userId = decoded.sub;
-
-        if (!userId) {
-          throw new Error("ID do usuário (sub) não encontrado no token.");
-        }
-
         // Busca os dados do perfil
         const profileResponse = await axios.get(
-          `http://localhost:3001/users/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `http://localhost:3001/users/${id}`
         );
 
         // Busca as avaliações relacionadas ao usuário
         const evaluationsResponse = await axios.get(
-          `http://localhost:3001/evaluate/user/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `http://localhost:3001/evaluate/user/${id}`
         );
 
         // Busca os detalhes dos usuários, professores e comentários que fizeram as avaliações
@@ -143,15 +118,13 @@ export default function Perfil() {
         });
       } catch (error) {
         console.error("Erro ao carregar o perfil ou avaliações:", error);
-        localStorage.removeItem("token");
-        router.push("/login");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [router]);
+  }, [id]);
 
   // Fetch subjects data
   useEffect(() => {
@@ -172,117 +145,6 @@ export default function Perfil() {
     return subject ? subject.name : "Disciplina não encontrada";
   };
 
-  const handleEditProfile = async (data: {
-    name: string;
-    email: string;
-    course: string;
-    department: string;
-    currentPassword?: string;
-    newPassword?: string;
-  }) => {
-    if (!profile) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `http://localhost:3001/users/${profile.id}`,
-        data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setProfile((prevProfile) =>
-        prevProfile
-          ? {
-              ...prevProfile,
-              name: data.name,
-              email: data.email,
-              course: data.course,
-              department: data.department,
-            }
-          : null
-      );
-
-      alert("Perfil atualizado com sucesso!");
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Erro ao atualizar o perfil:", error);
-      alert("Erro ao atualizar o perfil.");
-    }
-  };
-
-  const handleDeleteProfile = async () => {
-    if (!profile) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3001/users/${profile.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      alert("Perfil excluído com sucesso!");
-      localStorage.removeItem("token");
-      router.push("/login");
-    } catch (error) {
-      console.error("Erro ao excluir o perfil:", error);
-      alert("Erro ao excluir o perfil.");
-    }
-  };
-
-  const handleDeleteEvaluation = async (evaluationId: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3001/evaluate/${evaluationId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setProfile((prevProfile) =>
-        prevProfile
-          ? {
-              ...prevProfile,
-              evaluations: prevProfile.evaluations.filter(
-                (evaluation) => evaluation.id !== evaluationId
-              ),
-            }
-          : null
-      );
-
-      alert("Avaliação excluída com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir a avaliação:", error);
-      alert("Erro ao excluir a avaliação.");
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3001/comentarios/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setProfile((prevProfile) =>
-        prevProfile
-          ? {
-              ...prevProfile,
-              evaluations: prevProfile.evaluations.map((evaluation) => ({
-                ...evaluation,
-                comments: evaluation.comments?.filter(
-                  (comment) => comment.id !== commentId
-                ),
-              })),
-            }
-          : null
-      );
-
-      alert("Comentário excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir o comentário:", error);
-      alert("Erro ao excluir o comentário.");
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-100">
@@ -294,14 +156,14 @@ export default function Perfil() {
   if (!profile) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-100">
-        <p>Erro ao carregar o perfil. Redirecionando...</p>
+        <p>Erro ao carregar o perfil.</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <HeaderLogado />
+      <HeaderDeslogado />
       <div className="flex justify-center items-start pt-24">
         <main className="bg-white w-11/12 max-w-4xl p-6 rounded-lg shadow-md">
           <div className="flex items-center space-x-4">
@@ -310,21 +172,6 @@ export default function Perfil() {
               <p className="text-gray-600">{profile.course} / {profile.department}</p>
               <p className="text-gray-600">{profile.email}</p>
             </div>
-          </div>
-
-          <div className="mt-4 flex space-x-4">
-            <button
-              className="px-4 py-2 bg-green-300 rounded-lg shadow-md hover:bg-green-400"
-              onClick={() => setIsEditModalOpen(true)}
-            >
-              Editar Perfil
-            </button>
-            <button
-              className="px-4 py-2 bg-red-300 rounded-lg shadow-md hover:bg-red-400"
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              Excluir Perfil
-            </button>
           </div>
 
           <section className="mt-8">
@@ -339,14 +186,6 @@ export default function Perfil() {
                         <p className="font-semibold">
                           <strong>{evaluation.user?.name}</strong> · {new Date(evaluation.createdAt).toLocaleString()} · {evaluation.teacher?.name} · {getSubjectName(evaluation.subjectId)}
                         </p>
-                        <div className="flex space-x-2">
-                          <button
-                            className="px-2 py-1 bg-red-300 rounded-lg shadow-md hover:bg-red-400"
-                            onClick={() => handleDeleteEvaluation(evaluation.id)}
-                          >
-                            Excluir
-                          </button>
-                        </div>
                       </div>
                       <p className="mt-2 text-gray-700">{evaluation.content}</p>
                       <div className="mt-4 space-y-2">
@@ -358,14 +197,6 @@ export default function Perfil() {
                                 <div className="flex items-center justify-between">
                                   <span className="text-gray-600">{comment.user?.name}</span>
                                   <span className="text-gray-500 text-sm">{new Date(comment.createdAt).toLocaleString()}</span>
-                                  {comment.userId === profile.id && (
-                                    <button
-                                      className="px-2 py-1 bg-red-300 rounded-lg shadow-md hover:bg-red-400"
-                                      onClick={() => handleDeleteComment(comment.id)}
-                                    >
-                                      Excluir
-                                    </button>
-                                  )}
                                 </div>
                                 <p className="text-gray-700">{comment.conteudo}</p>
                               </div>
@@ -384,24 +215,6 @@ export default function Perfil() {
           </section>
         </main>
       </div>
-
-      <EditProfileModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleEditProfile}
-        initialData={{
-          name: profile.name,
-          email: profile.email,
-          course: profile.course,
-          department: profile.department,
-        }}
-      />
-
-      <DeleteProfileModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onDelete={handleDeleteProfile}
-      />
     </div>
   );
 }
