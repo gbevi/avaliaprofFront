@@ -15,6 +15,7 @@ export default function Register() {
   const [course, setCourse] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -30,13 +31,16 @@ export default function Register() {
         course,
         email,
         password,
+        photo,
       };
 
       console.log("Payload enviado:", payload);
 
+      console.log(endpoint)
+
       await axios.post(endpoint, payload, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -122,6 +126,25 @@ export default function Register() {
                 className="w-full border border-gray-300 rounded-lg p-3 mt-1 bg-transparent text-sm"
                 required
               />
+            </div>
+            {/* Campo Departamento */}
+            <div>
+              <label className="text-sm font-medium">foto</label>
+              <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPhoto(file);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className="w-full px-4 py-2 mb-4 border rounded-md"
+            />
             </div>
 
             {/* Campo Senha */}

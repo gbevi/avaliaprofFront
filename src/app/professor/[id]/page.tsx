@@ -39,6 +39,7 @@ interface Teacher {
   subjects: Subject[];
   evaluations: Evaluation[];
   createdAt: string;
+  photo: string;
   updatedAt: string;
 }
 
@@ -258,6 +259,19 @@ export default function TeacherProfile() {
         <main className="bg-white w-11/12 max-w-4xl p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
+              <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-3xl mr-4 overflow-hidden">
+                {/* If you have a photo URL, replace the emoji below with an <img src={photoUrl} ... /> */}
+                {teacher.photo ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`data:image/jpeg;base64,${teacher.photo}`}
+        alt={teacher.name}
+        className="object-cover w-full h-full"
+      />
+    ) : (
+      <span className="text-gray-400 text-3xl">👤</span>
+    )}
+              </div>
               <h2 className="text-2xl font-semibold text-gray-800">{teacher.name}</h2>
               <p className="text-gray-600">
                 {teacher.subjects && teacher.subjects.length > 0 ? teacher.subjects.map(subject => subject.name).join(", ") : "Sem disciplinas"}

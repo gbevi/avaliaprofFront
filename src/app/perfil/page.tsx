@@ -24,6 +24,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  photo: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +60,7 @@ interface Profile {
   email: string;
   course: string;
   department: string;
+  photo: string;
   avatar?: string;
   evaluations: Evaluation[];
 }
@@ -172,45 +174,42 @@ export default function Perfil() {
     return subject ? subject.name : "Disciplina não encontrada";
   };
 
-  const handleEditProfile = async (data: {
-    name: string;
-    email: string;
-    course: string;
-    department: string;
-    currentPassword?: string;
-    newPassword?: string;
-  }) => {
-    if (!profile) return;
+  const handleEditProfile = async (data: FormData) => {
+  if (!profile) return;
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.patch(
+      `http://localhost:3001/users/${profile.id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `http://localhost:3001/users/${profile.id}`,
-        data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    // Atualize o perfil local com os dados retornados do backend (incluindo a nova foto, se houver)
+    setProfile((prevProfile) =>
+      prevProfile
+        ? {
+            ...prevProfile,
+            name: response.data.name,
+            email: response.data.email,
+            course: response.data.course,
+            department: response.data.department,
+            photo: response.data.photo, 
+          }
+        : null
+    );
 
-      setProfile((prevProfile) =>
-        prevProfile
-          ? {
-              ...prevProfile,
-              name: data.name,
-              email: data.email,
-              course: data.course,
-              department: data.department,
-            }
-          : null
-      );
-
-      alert("Perfil atualizado com sucesso!");
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Erro ao atualizar o perfil:", error);
-      alert("Erro ao atualizar o perfil.");
-    }
-  };
+    alert("Perfil atualizado com sucesso!");
+    setIsEditModalOpen(false);
+  } catch (error) {
+    console.error("Erro ao atualizar o perfil:", error);
+    alert("Erro ao atualizar o perfil.");
+  }
+};
 
   const handleDeleteProfile = async () => {
     if (!profile) return;
@@ -306,6 +305,19 @@ export default function Perfil() {
         <main className="bg-white w-11/12 max-w-4xl p-6 rounded-lg shadow-md">
           <div className="flex items-center space-x-4">
             <div>
+                    <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-3xl mr-4 overflow-hidden">
+                      {/* If you have a photo URL, replace the emoji below with an <img src={photoUrl} ... /> */}
+                      {profile.photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`data:image/jpeg;base64,${profile.photo}`}
+              alt={profile.name}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span className="text-gray-400 text-3xl">👤</span>
+          )}
+              </div>
               <h2 className="text-2xl font-semibold text-gray-800">{profile.name}</h2>
               <p className="text-gray-600">{profile.course} / {profile.department}</p>
               <p className="text-gray-600">{profile.email}</p>
@@ -393,6 +405,7 @@ export default function Perfil() {
           name: profile.name,
           email: profile.email,
           course: profile.course,
+          photo: profile.photo,
           department: profile.department,
         }}
       />

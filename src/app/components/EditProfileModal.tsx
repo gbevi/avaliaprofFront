@@ -3,18 +3,12 @@ import { useState } from "react";
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: {
-    name: string;
-    email: string;
-    course: string;
-    department: string;
-    currentPassword?: string;
-    newPassword?: string;
-  }) => void;
+  onSave: (data: FormData) => void; // <-- agora espera FormData
   initialData: {
     name: string;
     email: string;
     course: string;
+    photo: string;
     department: string;
   };
 }
@@ -30,6 +24,7 @@ export default function EditProfileModal({
     currentPassword: "",
     newPassword: "",
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   if (!isOpen) return null;
 
@@ -82,6 +77,23 @@ export default function EditProfileModal({
           />
         </div>
 
+        {/* Foto */}
+        <div>
+          <label className="text-sm font-medium">foto</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              console.log("Arquivo selecionado:", file); 
+              if (file) {
+                setPhotoFile(file); // Salva o arquivo, não o base64
+              }
+            }}
+            className="w-full px-4 py-2 mb-4 border rounded-md"
+          />
+        </div>
+
         {/* Senha Atual */}
         <div className="mb-4">
           <label className="block font-medium mb-1">Senha Atual</label>
@@ -111,7 +123,21 @@ export default function EditProfileModal({
           <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={onClose}>
             Cancelar
           </button>
-          <button className="px-4 py-2 bg-green-500 text-white rounded-lg" onClick={() => onSave(formData)}>
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded-lg"
+            onClick={() => {
+              const data = new FormData();
+              data.append("name", formData.name);
+              data.append("email", formData.email);
+              data.append("course", formData.course);
+              data.append("department", formData.department);
+              if (formData.currentPassword) data.append("currentPassword", formData.currentPassword);
+              if (formData.newPassword) data.append("newPassword", formData.newPassword);
+              console.log("Arquivo enviado:", photoFile);
+              if (photoFile) data.append("photo", photoFile); // Envia como arquivo
+              onSave(data);
+            }}
+          >
             Salvar
           </button>
         </div>
@@ -119,5 +145,3 @@ export default function EditProfileModal({
     </div>
   );
 }
-
-  

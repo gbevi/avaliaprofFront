@@ -9,6 +9,7 @@ interface GetProfessor {
   name: string;
   subjects: Subject[];
   evaluations: string[];
+  photo: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +28,7 @@ export default function Home() {
   const [newProfessorName, setNewProfessorName] = useState('');
   const [newProfessorSubject, setNewProfessorSubject] = useState('');
   const [newProfessorDepartment, setNewProfessorDepartment] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
   const router = useRouter();
 
   // Fetch data from API
@@ -62,17 +64,31 @@ export default function Home() {
 
   // Função para criar um novo professor
   const handleCreateProfessor = async () => {
+    const payload = {
+    name: newProfessorName,
+    subjectNames: [newProfessorSubject],
+    department: newProfessorDepartment,
+    photo: photo,
+  };
+  const payloadString = JSON.stringify(payload);
+  console.log('Payload size (bytes):', new TextEncoder().encode(payloadString).length);
     try {
       const response = await axios.post('http://localhost:3001/teacher', {
         name: newProfessorName,
         subjectNames: [newProfessorSubject],
         department: newProfessorDepartment,
+        photo: photo,
+      }, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setProfessores([...professores, response.data]);
       setIsModalOpen(false);
       setNewProfessorName('');
       setNewProfessorSubject('');
       setNewProfessorDepartment('');
+      setPhoto(null);
     } catch (error) {
       console.error('Erro ao criar professor:', error);
     }
@@ -99,15 +115,34 @@ export default function Home() {
         <div className="flex justify-center space-x-10">
           {newProfessores.slice(0, 4).map((professor) => (
             <div
-              key={professor.id}
-              onClick={() => handleProfessorClick(professor.id)} // Navegar ao clicar
-              className="bg-white shadow-md rounded-md p-4 text-center cursor-pointer hover:shadow-lg transition"
-            >
-              <p className="mt-4 text-lg font-Questrial font-medium">{professor.name}</p>
-              <p className="text-gray-500 font-Questrial text-sm">
-                {professor.subjects && professor.subjects.length > 0 ? professor.subjects.map(subject => subject.name).join(", ") : "Sem disciplinas"}
-              </p>
-            </div>
+  key={professor.id}
+  onClick={() => handleProfessorClick(professor.id)} // Navegar ao clicar
+  className="bg-white shadow-md rounded-md p-4 text-center cursor-pointer hover:shadow-lg transition flex flex-col items-center mt-2"
+>
+  {/* Círculo da foto */}
+  <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center mb-2">
+    {professor.photo ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={
+          professor.photo.startsWith('http')
+            ? professor.photo
+            : `http://localhost:3001/uploads/${professor.photo}`
+        }
+        alt={professor.name}
+        className="object-cover w-full h-full"
+      />
+    ) : (
+      <span className="text-gray-400 text-3xl">👤</span>
+    )}
+  </div>
+  <p className="mt-2 text-lg font-Questrial font-medium">{professor.name}</p>
+  <p className="text-gray-500 font-Questrial text-sm">
+    {professor.subjects && professor.subjects.length > 0
+      ? professor.subjects.map(subject => subject.name).join(", ")
+      : "Sem disciplinas"}
+  </p>
+</div>
           ))}
         </div>
       </section>
@@ -128,15 +163,30 @@ export default function Home() {
         <div className="flex flex-wrap justify-center space-x-10 mt-6 mx-6">
           {filteredProfessores.map((professor) => (
             <div
-              key={professor.id}
-              onClick={() => handleProfessorClick(professor.id)} // Navegar ao clicar
-              className="bg-white shadow-md rounded-md p-4 text-center cursor-pointer hover:shadow-lg transition"
-            >
-              <p className="mt-4 text-lg font-Questrial font-medium">{professor.name}</p>
-              <p className="text-gray-500 font-Questrial text-sm">
-                {professor.subjects && professor.subjects.length > 0 ? professor.subjects.map(subject => subject.name).join(", ") : "Sem disciplinas"}
-              </p>
-            </div>
+  key={professor.id}
+  onClick={() => handleProfessorClick(professor.id)} // Navegar ao clicar
+  className="bg-white shadow-md rounded-md p-4 text-center cursor-pointer hover:shadow-lg transition flex flex-col items-center mt-2"
+>
+  {/* Círculo da foto */}
+  <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center mb-2">
+    {professor.photo ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`data:image/jpeg;base64,${professor.photo}`}
+        alt={professor.name}
+        className="object-cover w-full h-full"
+      />
+    ) : (
+      <span className="text-gray-400 text-3xl">👤</span>
+    )}
+  </div>
+  <p className="mt-2 text-lg font-Questrial font-medium">{professor.name}</p>
+  <p className="text-gray-500 font-Questrial text-sm">
+    {professor.subjects && professor.subjects.length > 0
+      ? professor.subjects.map(subject => subject.name).join(", ")
+      : "Sem disciplinas"}
+  </p>
+</div>
           ))}
         </div>
       </section>
@@ -165,6 +215,21 @@ export default function Home() {
               placeholder="Departamento"
               value={newProfessorDepartment}
               onChange={(e) => setNewProfessorDepartment(e.target.value)}
+              className="w-full px-4 py-2 mb-4 border rounded-md"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPhoto(file);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
               className="w-full px-4 py-2 mb-4 border rounded-md"
             />
             <div className="flex justify-end space-x-4">
